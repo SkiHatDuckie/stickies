@@ -18,12 +18,10 @@
 ;;; Toolbar
 
 (defclass toolbar () 
-  ((width
-    :initarg :width
-    :initform (error "Required field `width` not initialized."))
-   (height
-    :initarg :height
-    :initform (error "Required field `height` not initialized."))))
+  ((width :initarg :width
+          :initform (error "Required field `width` not initialized."))
+   (height :initarg :height
+           :initform (error "Required field `height` not initialized."))))
 
 (defmethod draw ((instance toolbar) &key &allow-other-keys)
   (with-pen
@@ -36,26 +34,21 @@
 ;;; Buttons
 
 (defclass button ()
-  ((image-resource
-    :initarg :image-resource
-    :initform nil
-    :documentation "Image to be displayed on the button.")
-   (width
-    :initarg :width
-    :initform nil
-    :documentation "Width of the button.")
-   (height
-    :initarg :height
-    :initform nil
-    :documentation "Height of the button.")
-   (x-offset
-    :initarg :x-offset
-    :initform 0
-    :documentation "The x position of the top left corner of the button.")
-   (y-offset
-    :initarg :y-offset
-    :initform 0
-    :documentation "The y position of the top left corner of the button.")))
+  ((image-resource :initarg :image-resource
+                   :initform nil
+                   :documentation "Image to be displayed on the button.")
+   (width :initarg :width
+          :initform nil
+          :documentation "Width of the button.")
+   (height :initarg :height
+           :initform nil
+           :documentation "Height of the button.")
+   (x-offset :initarg :x-offset
+             :initform 0
+             :documentation "The x position of the top left corner of the button.")
+   (y-offset :initarg :y-offset
+             :initform 0
+             :documentation "The y position of the top left corner of the button.")))
 
 (defmethod initialize-instance :after ((instance button) &key)
   (with-slots (image-resource width height) instance
@@ -87,34 +80,22 @@
 
 ;;; Snapgrid
 
-;; Used when creating a new snapgrid
-(defparameter *default-cell-width* 32)
-(defparameter *default-grid-length* 50)
-(defparameter *default-grid-width* 50)
-(defparameter *default-x-offset* 0)
-(defparameter *default-y-offset* 50)
-
 (defclass snapgrid ()
-  ((cell-width
-    :initarg :cell-width
-    :initform *default-cell-width*
-    :documentation "The width (in pixels) of each grid cell.")
-   (grid-length
-    :initarg :grid-length
-    :initform *default-grid-length*
-    :documentation "The length (in cells) of the grid.")
-   (grid-width
-    :initarg :grid-width
-    :initform *default-grid-width*
-    :documentation "The width (in cells) of the grid.")
-   (x-offset
-    :initarg :x-offset
-    :initform *default-x-offset*
-    :documentation "The x position (in pixels) of the top left corner of the grid.")
-   (y-offset
-    :initarg :y-offset
-    :initform *default-y-offset*
-    :documentation "The y position (in pixels) of the top left corner of the grid.")))
+  ((cell-width :initarg :cell-width
+               :initform 32
+               :documentation "The width (in pixels) of each grid cell.")
+   (grid-length :initarg :grid-length
+                :initform 50
+                :documentation "The length (in cells) of the grid.")
+   (grid-width :initarg :grid-width
+               :initform 50
+               :documentation "The width (in cells) of the grid.")
+   (x-offset :initarg :x-offset
+             :initform 0
+             :documentation "The x position (in pixels) of the top left corner of the grid.")
+   (y-offset :initarg :y-offset
+             :initform 0
+             :documentation "The y position (in pixels) of the top left corner of the grid.")))
 
 (defmethod draw ((instance snapgrid) &key &allow-other-keys)
   (with-pen
@@ -157,7 +138,7 @@
 
 (defsketch app
     ((title "Stickies") (width 600) (height 400)
-     (snapgrid (make-instance 'snapgrid))
+     (snapgrid (make-instance 'snapgrid :y-offset 50))
      (toolbar (make-instance 'toolbar :width width :height 50))
      (save-icon (load-resource "..\\assets\\StickiesSaveIcon.png")))
   (background +white+)
