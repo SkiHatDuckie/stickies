@@ -35,7 +35,47 @@
 
 ;;; Buttons
 
-(defclass button () ())
+(defclass button ()
+  ((image-resource
+    :initarg :image-resource
+    :initform nil
+    :documentation "Image to be displayed on the button.")
+   (width
+    :initarg :width
+    :initform nil
+    :documentation "Width of the button.")
+   (height
+    :initarg :height
+    :initform nil
+    :documentation "Height of the button.")
+   (x-offset
+    :initarg :x-offset
+    :initform 0
+    :documentation "The x position of the top left corner of the button.")
+   (y-offset
+    :initarg :y-offset
+    :initform 0
+    :documentation "The y position of the top left corner of the button.")))
+
+(defmethod initialize-instance :after ((instance button) &key)
+  (with-slots (image-resource width height) instance
+    (unless width
+      (setf width (if image-resource
+                      (slot-value image-resource 'sketch::width)
+                      32)))
+    (unless height
+      (setf height (if image-resource
+                       (slot-value image-resource 'sketch::height)
+                       32)))))
+
+(defmethod draw ((instance button) &key &allow-other-keys)
+  (with-pen
+    (make-pen :stroke +blue+ :fill +white+ :weight 1)
+    (with-slots (image-resource width height x-offset y-offset) instance
+      (rect x-offset y-offset width height)
+      (when image-resource
+        (image image-resource x-offset y-offset)))))
+
 (defclass save-button (button) ())
 (defclass load-button (button) ())
 (defclass box-button (button) ())
@@ -77,9 +117,9 @@
     :documentation "The y position (in pixels) of the top left corner of the grid.")))
 
 (defmethod draw ((instance snapgrid) &key &allow-other-keys)
-  (with-slots (cell-width grid-length grid-width x-offset y-offset) instance
-    (with-pen
-      (make-pen :stroke (rgb-255 50 50 50) :fill +white+ :weight 1)
+  (with-pen
+    (make-pen :stroke (rgb-255 50 50 50) :fill +white+ :weight 1)
+    (with-slots (cell-width grid-length grid-width x-offset y-offset) instance
       (dotimes (i grid-length)  ; Horizontal lines
         (line
           x-offset
@@ -115,15 +155,16 @@
 
 ;;; Stickies App
 
-(defsketch app 
+(defsketch app
     ((title "Stickies") (width 600) (height 400)
-     (toolbar (make-instance 'toolbar :width width :height 50))
      (snapgrid (make-instance 'snapgrid))
+     (toolbar (make-instance 'toolbar :width width :height 50))
      (save-icon (load-resource "..\\assets\\StickiesSaveIcon.png")))
   (background +white+)
   (draw snapgrid)
   (draw toolbar)
-  (image save-icon 0 0))
+  (let ((save-button (make-instance 'button :image-resource save-icon)))
+    (draw save-button)))
 
 (defun main ()
   (make-instance 'app))
