@@ -15,59 +15,46 @@
 (defpackage :stickies (:use :cl :sketch))
 (in-package :stickies)
 
+;;; UI Surface
+
+(defclass ui-surface ()
+  ((surface-image :initarg :surface-image
+                  :initform nil
+                  :documentation "An image to be rendered on to the surface.")
+   (surface-color :initarg :surface-color
+                  :initform +white+
+                  :documentation "Color of the surface.")
+   (border-color :initarg :border-color
+                 :initform +black+
+                 :documentation "Color of the surface's border.")
+   (width :initarg :width
+          :initform 0
+          :documentation "Width of the surface.")
+   (height :initarg :height
+           :initform 0
+           :documentation "Height of the surface.")
+   (x-offset :initarg :x-offset
+             :initform 0
+             :documentation "The x position of the top left corner of the surface.")
+   (y-offset :initarg :y-offset
+             :initform 0
+             :documentation "The y position of the top left corner of the surface.")))
+
+(defmethod draw ((instance ui-surface) &key &allow-other-keys)
+  (with-slots (surface-image surface-color border-color width height x-offset y-offset) instance
+    (with-pen
+      (make-pen :stroke border-color :fill surface-color :weight 1)
+      (rect x-offset y-offset width height)
+      (when surface-image
+        (image surface-image x-offset y-offset)))))
+
 ;;; Toolbar
 
-(defclass toolbar () 
-  ((width :initarg :width
-          :initform (error "Required field `width` not initialized."))
-   (height :initarg :height
-           :initform (error "Required field `height` not initialized."))))
-
-(defmethod draw ((instance toolbar) &key &allow-other-keys)
-  (with-pen
-    (make-pen :stroke +blue+ :fill +white+ :weight 1)
-    (rect 0
-          0
-          (slot-value instance 'width)
-          (slot-value instance 'height))))
+(defclass toolbar (ui-surface) ())
 
 ;;; Buttons
 
-(defclass button ()
-  ((image-resource :initarg :image-resource
-                   :initform nil
-                   :documentation "Image to be displayed on the button.")
-   (width :initarg :width
-          :initform nil
-          :documentation "Width of the button.")
-   (height :initarg :height
-           :initform nil
-           :documentation "Height of the button.")
-   (x-offset :initarg :x-offset
-             :initform 0
-             :documentation "The x position of the top left corner of the button.")
-   (y-offset :initarg :y-offset
-             :initform 0
-             :documentation "The y position of the top left corner of the button.")))
-
-(defmethod initialize-instance :after ((instance button) &key)
-  (with-slots (image-resource width height) instance
-    (unless width
-      (setf width (if image-resource
-                      (slot-value image-resource 'sketch::width)
-                      32)))
-    (unless height
-      (setf height (if image-resource
-                       (slot-value image-resource 'sketch::height)
-                       32)))))
-
-(defmethod draw ((instance button) &key &allow-other-keys)
-  (with-pen
-    (make-pen :stroke +blue+ :fill +white+ :weight 1)
-    (with-slots (image-resource width height x-offset y-offset) instance
-      (rect x-offset y-offset width height)
-      (when image-resource
-        (image image-resource x-offset y-offset)))))
+(defclass button (ui-surface) ())
 
 (defclass save-button (button) ())
 (defclass load-button (button) ())
@@ -139,12 +126,13 @@
 (defsketch app
     ((title "Stickies") (width 600) (height 400)
      (snapgrid (make-instance 'snapgrid :y-offset 50))
-     (toolbar (make-instance 'toolbar :width width :height 50))
+     (toolbar (make-instance 'toolbar :border-color +blue+ :width width :height 50))
      (save-icon (load-resource "..\\assets\\StickiesSaveIcon.png")))
   (background +white+)
   (draw snapgrid)
   (draw toolbar)
-  (let ((save-button (make-instance 'button :image-resource save-icon)))
+  (let ((save-button (make-instance 'button :surface-image save-icon :border-color +blue+
+                      :width 50 :height 50)))
     (draw save-button)))
 
 (defun main ()
