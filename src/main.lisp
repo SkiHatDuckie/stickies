@@ -127,13 +127,29 @@
     ((title "Stickies") (width 600) (height 400)
      (snapgrid (make-instance 'snapgrid :y-offset 50))
      (toolbar (make-instance 'toolbar :border-color +blue+ :width width :height 50))
-     (save-icon (load-resource "..\\assets\\StickiesSaveIcon.png")))
+     (save-icon (load-resource "..\\assets\\StickiesSaveIcon.png"))
+     (load-icon (load-resource "..\\assets\\StickiesLoadIcon.png"))
+     (box-icon (load-resource "..\\assets\\StickiesBoxIcon.png"))
+     (arrow-icon (load-resource "..\\assets\\StickiesArrowIcon.png"))
+     (connector-icon (load-resource "..\\assets\\StickiesConnectorIcon.png")))
   (background +white+)
   (draw snapgrid)
   (draw toolbar)
   (let ((save-button (make-instance 'button :surface-image save-icon :border-color +blue+
                       :width 50 :height 50)))
-    (draw save-button)))
+    (draw save-button))
+  (let ((load-button (make-instance 'button :surface-image load-icon :border-color +blue+
+                      :width 50 :height 50 :x-offset 50)))
+    (draw load-button))
+  (let ((box-button (make-instance 'button :surface-image box-icon :border-color +blue+
+                      :width 50 :height 50 :x-offset 100)))
+    (draw box-button))
+  (let ((arrow-button (make-instance 'button :surface-image arrow-icon :border-color +blue+
+                      :width 50 :height 50 :x-offset 150)))
+    (draw arrow-button))
+  (let ((connector-button (make-instance 'button :surface-image connector-icon :border-color +blue+
+                      :width 50 :height 50 :x-offset 200)))
+    (draw connector-button)))
 
 (defun main ()
   (make-instance 'app))
