@@ -18,27 +18,33 @@
 ;;; UI Surface
 
 (defclass ui-surface ()
-  ((surface-color :initarg :surface-color
+  ((surface-image :initarg :surface-image
+                  :initform nil
+                  :accessor surface-image
+                  :documentation "Image to be drawn on the surface.")
+   (surface-color :initarg :surface-color
                   :initform +white+
+                  :accessor surface-color
                   :documentation "Color of the surface.")
    (border-color :initarg :border-color
                  :initform +black+
+                 :accessor border-color
                  :documentation "Color of the surface's border.")
    (width :initarg :width
           :initform 0
-          :reader width
+          :accessor width
           :documentation "Width of the surface.")
    (height :initarg :height
            :initform 0
-           :reader height
+           :accessor height
            :documentation "Height of the surface.")
    (x-offset :initarg :x-offset
              :initform 0
-             :reader x-offset
+             :accessor x-offset
              :documentation "The x position of the top left corner of the surface.")
    (y-offset :initarg :y-offset
              :initform 0
-             :reader y-offset
+             :accessor y-offset
              :documentation "The y position of the top left corner of the surface.")))
 
 (defmethod mouse-over-surface-p ((instance ui-surface) mouse-x mouse-y)
@@ -46,8 +52,8 @@
     (and (< x-offset mouse-x (+ x-offset width))
          (< y-offset mouse-y (+ y-offset height)))))
 
-(defmethod draw ((instance ui-surface) &key (surface-image nil) &allow-other-keys)
-  (with-slots (surface-color border-color width height x-offset y-offset) instance
+(defmethod draw ((instance ui-surface) &key &allow-other-keys)
+  (with-slots (surface-image surface-color border-color width height x-offset y-offset) instance
     (with-pen
       (make-pen :stroke border-color :fill surface-color :weight 1)
       (rect x-offset y-offset width height)
@@ -56,7 +62,24 @@
 
 ;;; Toolbar
 
-(defclass toolbar (ui-surface) ())
+(defclass toolbar (ui-surface)
+  ((widgets :initarg :widgets
+            :initform (vector)
+            :accessor widgets
+            :documentation #.(format nil "List of ui-surface objects contained in toolbar.
+                                          The order of items in the list is the order they'll
+                                          be rendered, going from left to right."))))
+
+(defmethod reposition-widgets ((instance toolbar))
+  (with-accessors ((widgets widgets)) instance
+    (let ((next-open-x-pos 0))
+      (dotimes (i (length widgets))
+        (with-accessors ((x-offset x-offset) (width width)) (elt widgets i)
+          (setf x-offset next-open-x-pos)
+          (incf next-open-x-pos width))))))
+
+(defmethod initialize-instance :after ((instance toolbar) &key)
+  (reposition-widgets instance))
 
 ;;; Buttons
 
@@ -90,7 +113,12 @@
 
 (defclass save-button (button) ())
 (defclass load-button (button) ())
+
 (defclass box-button (button) ())
+
+(defmethod on-release :after ((instance box-button))
+  )
+
 (defclass arrow-button (button) ())
 (defclass connector-button (button) ())
 
@@ -155,47 +183,69 @@
 (defsketch app
     ((title "Stickies") (width 600) (height 400)
      (snapgrid (make-instance 'snapgrid :y-offset 50))
-     (toolbar (make-instance 'toolbar :border-color +blue+
-                                      :width width
-                                      :height 50))
-     (save-button (make-instance 'button :border-color +blue+
-                                         :width 50
-                                         :height 50))
+     (toolbar)
+     (save-button)
+     (load-button)
+     (box-button)
+     (arrow-button)
+     (connector-button)
      (save-icon (load-resource "..\\assets\\StickiesSaveIcon.png"))
-     (load-button (make-instance 'button :border-color +blue+
-                                         :width 50
-                                         :height 50
-                                         :x-offset 50))
      (load-icon (load-resource "..\\assets\\StickiesLoadIcon.png"))
-     (box-button (make-instance 'button :border-color +blue+
-                                        :width 50
-                                        :height 50
-                                        :x-offset 100))
      (box-icon (load-resource "..\\assets\\StickiesBoxIcon.png"))
-     (arrow-button (make-instance 'button :border-color +blue+
-                                          :width 50
-                                          :height 50
-                                          :x-offset 150))
      (arrow-icon (load-resource "..\\assets\\StickiesArrowIcon.png"))
-     (connector-button (make-instance 'button :border-color +blue+
-                                              :width 50
-                                              :height 50 
-                                              :x-offset 200))
-     (connector-icon (load-resource "..\\assets\\StickiesConnectorIcon.png"))
-     (buttons (vector save-button load-button box-button arrow-button connector-button)))
+     (connector-icon (load-resource "..\\assets\\StickiesConnectorIcon.png")))
   (background +white+)
   (draw snapgrid)
   (draw toolbar)
-  (draw save-button :surface-image save-icon)
-  (draw load-button :surface-image load-icon)
-  (draw box-button :surface-image box-icon)
-  (draw arrow-button :surface-image arrow-icon)
-  (draw connector-button :surface-image connector-icon))
+  (draw save-button)
+  (draw load-button)
+  (draw box-button)
+  (draw arrow-button)
+  (draw connector-button))
+
+(defmethod setup ((window app) &key &allow-other-keys)
+  (with-slots (toolbar
+               width
+               save-button save-icon
+               load-button load-icon
+               box-button box-icon
+               arrow-button arrow-icon
+               connector-button connector-icon) window 
+    (setf save-button (make-instance 'button :surface-image save-icon
+                                             :border-color +blue+
+                                             :width 50
+                                             :height 50))
+    (setf load-button (make-instance 'button :surface-image load-icon
+                                             :border-color +blue+
+                                             :width 50
+                                             :height 50))
+    (setf box-button (make-instance 'button :surface-image box-icon
+                                            :border-color +blue+
+                                            :width 50
+                                            :height 50))
+    (setf arrow-button (make-instance 'button :surface-image arrow-icon
+                                              :border-color +blue+
+                                              :width 50
+                                              :height 50))
+    (setf connector-button (make-instance 'button :surface-image connector-icon
+                                                  :border-color +blue+
+                                                  :width 50
+                                                  :height 50))
+    (setf toolbar (make-instance 'toolbar :border-color +blue+
+                                          :width width
+                                          :height 50
+                                          :widgets (vector save-button
+                                                           load-button
+                                                           box-button
+                                                           arrow-button
+                                                           connector-button)))))
 
 (defmethod kit.sdl2:mousemotion-event ((window app) timestamp state x y xrel yrel)
-  (with-slots (buttons) window
-    (dotimes (i (length buttons))
-      (on-motion (elt buttons i) x y))))
+  (with-slots (toolbar) window
+    (with-accessors ((widgets widgets)) toolbar
+      (dotimes (i (length widgets))
+        (when (eq 'button (type-of (elt widgets i)))
+          (on-motion (elt widgets i) x y))))))
 
 (defun main ()
   (make-instance 'app))
