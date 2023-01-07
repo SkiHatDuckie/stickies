@@ -81,21 +81,25 @@
 (defmethod initialize-instance :after ((instance toolbar) &key)
   (reposition-widgets instance))
 
+(defvar *file-toolbar* (make-instance 'toolbar))
+(defvar *box-toolbar* (make-instance 'toolbar))
+(defvar *current-toolbar* nil)  ; Make sure this is set to something before it's drawn!
+
 ;;; Buttons
 
 (defclass button (ui-surface)
-  ((is-hovered :initform nil
-               :accessor is-hovered
-               :documentation "If button's surface is being hovered over or not.")
+  ((hover :initform nil
+          :accessor hover
+          :documentation "If button's surface is being hovered over or not.")
    (hover-color :initform (rgb-255 0 0 0 50)
                 :accessor hover-color
                 :documentation "Color drawn over the button's surface when hovered.")))
 
 (defmethod on-motion ((instance button) mouse-x mouse-y)
-  (with-accessors ((is-hovered is-hovered)) instance
+  (with-accessors ((hover hover)) instance
     (if (mouse-over-surface-p instance mouse-x mouse-y)
-      (setf is-hovered t)
-      (setf is-hovered nil))))
+      (setf hover t)
+      (setf hover nil))))
 
 (defmethod on-release ((instance button)))
 
@@ -104,23 +108,30 @@
                    (height height)
                    (x-offset x-offset)
                    (y-offset y-offset)
-                   (is-hovered is-hovered)
+                   (hover hover)
                    (hover-color hover-color)) instance
     (with-pen
       (make-pen :stroke hover-color :fill hover-color :weight 1)
-      (when is-hovered
+      (when hover
         (rect x-offset y-offset width height)))))
 
 (defclass save-button (button) ())
 (defclass load-button (button) ())
 
 (defclass box-button (button) ())
-
 (defmethod on-release :after ((instance box-button))
-  )
+  (with-accessors ((hover hover)) instance
+    (when hover
+      (format t "Hello! :]~%"))))
 
 (defclass arrow-button (button) ())
 (defclass connector-button (button) ())
+(defclass terminal-box-button (button) ())
+(defclass process-box-button (button) ())
+(defclass decision-box-button (button) ())
+(defclass input-output-box-button (button) ())
+(defclass comment-box-button (button) ())
+(defclass predefined-process-box-button (button) ())
 
 ;;; Snapgrid
 
@@ -183,20 +194,31 @@
 (defsketch app
     ((title "Stickies") (width 600) (height 400)
      (snapgrid (make-instance 'snapgrid :y-offset 50))
-     (toolbar)
      (save-button)
      (load-button)
      (box-button)
      (arrow-button)
      (connector-button)
-     (save-icon (load-resource "..\\assets\\StickiesSaveIcon.png"))
-     (load-icon (load-resource "..\\assets\\StickiesLoadIcon.png"))
-     (box-icon (load-resource "..\\assets\\StickiesBoxIcon.png"))
-     (arrow-icon (load-resource "..\\assets\\StickiesArrowIcon.png"))
-     (connector-icon (load-resource "..\\assets\\StickiesConnectorIcon.png")))
+     (terminal-box-button)
+     (process-box-button)
+     (decision-box-button)
+     (input-output-box-button)
+     (comment-box-button)
+     (predefined-process-box-button)
+     (save-icon (load-resource "..\\assets\\SaveIcon.png"))
+     (load-icon (load-resource "..\\assets\\LoadIcon.png"))
+     (box-icon (load-resource "..\\assets\\BoxIcon.png"))
+     (arrow-icon (load-resource "..\\assets\\ArrowIcon.png"))
+     (connector-icon (load-resource "..\\assets\\ConnectorIcon.png"))
+     (terminal-box-icon (load-resource "..\\assets\\TerminalBoxIcon.png"))
+     (process-box-icon (load-resource "..\\assets\\ProcessBoxIcon.png"))
+     (decision-box-icon (load-resource "..\\assets\\DecisionBoxIcon.png"))
+     (input-output-box-icon (load-resource "..\\assets\\InputOutputBoxIcon.png"))
+     (comment-box-icon (load-resource "..\\assets\\CommentBoxIcon.png"))
+     (predefined-process-box-icon (load-resource "..\\assets\\PredefinedProcessBoxIcon.png")))
   (background +white+)
   (draw snapgrid)
-  (draw toolbar)
+  (draw *current-toolbar*)
   (draw save-button)
   (draw load-button)
   (draw box-button)
@@ -204,48 +226,60 @@
   (draw connector-button))
 
 (defmethod setup ((window app) &key &allow-other-keys)
-  (with-slots (toolbar
-               width
+  (with-slots (width
                save-button save-icon
                load-button load-icon
                box-button box-icon
                arrow-button arrow-icon
                connector-button connector-icon) window 
-    (setf save-button (make-instance 'button :surface-image save-icon
-                                             :border-color +blue+
-                                             :width 50
-                                             :height 50))
-    (setf load-button (make-instance 'button :surface-image load-icon
-                                             :border-color +blue+
-                                             :width 50
-                                             :height 50))
-    (setf box-button (make-instance 'button :surface-image box-icon
-                                            :border-color +blue+
-                                            :width 50
-                                            :height 50))
-    (setf arrow-button (make-instance 'button :surface-image arrow-icon
-                                              :border-color +blue+
-                                              :width 50
-                                              :height 50))
-    (setf connector-button (make-instance 'button :surface-image connector-icon
+    (setf save-button (make-instance 'save-button :surface-image save-icon
                                                   :border-color +blue+
                                                   :width 50
                                                   :height 50))
-    (setf toolbar (make-instance 'toolbar :border-color +blue+
-                                          :width width
-                                          :height 50
-                                          :widgets (vector save-button
-                                                           load-button
-                                                           box-button
-                                                           arrow-button
-                                                           connector-button)))))
+    (setf load-button (make-instance 'load-button :surface-image load-icon
+                                                  :border-color +blue+
+                                                  :width 50
+                                                  :height 50))
+    (setf box-button (make-instance 'box-button :surface-image box-icon
+                                                :border-color +blue+
+                                                :width 50
+                                                :height 50))
+    (setf arrow-button (make-instance 'arrow-button :surface-image arrow-icon
+                                                    :border-color +blue+
+                                                    :width 50
+                                                    :height 50))
+    (setf connector-button (make-instance 'connector-button :surface-image connector-icon
+                                                            :border-color +blue+
+                                                            :width 50
+                                                            :height 50))
+    (setf *file-toolbar* (make-instance 'toolbar :border-color +blue+
+                                                 :width width
+                                                 :height 50
+                                                 :widgets (vector save-button
+                                                                  load-button
+                                                                  box-button
+                                                                  arrow-button
+                                                                  connector-button))))
+  (setf *current-toolbar* *file-toolbar*))
 
+;; `(unless (< timestamp 1000)) was added to allow some time
+;; for resources to load before checking events.
+;; TODO: Get rid of the need to check this by creating a loading period during app startup.
 (defmethod kit.sdl2:mousemotion-event ((window app) timestamp state x y xrel yrel)
-  (with-slots (toolbar) window
-    (with-accessors ((widgets widgets)) toolbar
+  (unless (< timestamp 1000)
+    (with-accessors ((widgets widgets)) *current-toolbar*
       (dotimes (i (length widgets))
-        (when (eq 'button (type-of (elt widgets i)))
-          (on-motion (elt widgets i) x y))))))
+          (when (subtypep (type-of (elt widgets i)) 'button)
+            (on-motion (elt widgets i) x y))))))
+
+;; Same situation as above
+(defmethod kit.sdl2:mousebutton-event ((window app) state timestamp button x y)
+  (unless (< timestamp 1000)
+    (when (and (eql state :mousebuttonup) (eql button 1))
+      (with-accessors ((widgets widgets)) *current-toolbar*
+        (dotimes (i (length widgets))
+            (when (subtypep (type-of (elt widgets i)) 'button)
+              (on-release (elt widgets i))))))))
 
 (defun main ()
   (make-instance 'app))
