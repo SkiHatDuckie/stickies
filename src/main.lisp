@@ -81,6 +81,11 @@
 (defmethod initialize-instance :after ((instance toolbar) &key)
   (reposition-widgets instance))
 
+(defmethod draw :after ((instance toolbar) &key &allow-other-keys)
+  (with-accessors ((widgets widgets)) instance
+    (dotimes (i (length widgets))
+      (draw (elt widgets i)))))
+
 (defvar *file-toolbar* (make-instance 'toolbar))
 (defvar *box-toolbar* (make-instance 'toolbar))
 (defvar *current-toolbar* nil)  ; Make sure this is set to something before it's drawn!
@@ -122,7 +127,7 @@
 (defmethod on-release :after ((instance box-button))
   (with-accessors ((hover hover)) instance
     (when hover
-      (format t "Hello! :]~%"))))
+      (setf *current-toolbar* *box-toolbar*))))
 
 (defclass arrow-button (button) ())
 (defclass connector-button (button) ())
@@ -218,12 +223,7 @@
      (predefined-process-box-icon (load-resource "..\\assets\\PredefinedProcessBoxIcon.png")))
   (background +white+)
   (draw snapgrid)
-  (draw *current-toolbar*)
-  (draw save-button)
-  (draw load-button)
-  (draw box-button)
-  (draw arrow-button)
-  (draw connector-button))
+  (draw *current-toolbar*))
 
 (defmethod setup ((window app) &key &allow-other-keys)
   (with-slots (width
@@ -231,7 +231,13 @@
                load-button load-icon
                box-button box-icon
                arrow-button arrow-icon
-               connector-button connector-icon) window 
+               connector-button connector-icon
+               terminal-box-button terminal-box-icon
+               process-box-button process-box-icon
+               decision-box-button decision-box-icon
+               input-output-box-button input-output-box-icon
+               comment-box-button comment-box-icon
+               predefined-process-box-button predefined-process-box-icon) window 
     (setf save-button (make-instance 'save-button :surface-image save-icon
                                                   :border-color +blue+
                                                   :width 50
@@ -252,6 +258,32 @@
                                                             :border-color +blue+
                                                             :width 50
                                                             :height 50))
+    (setf terminal-box-button (make-instance 'terminal-box-button :surface-image terminal-box-icon
+                                                                  :border-color +blue+
+                                                                  :width 50
+                                                                  :height 50))
+    (setf process-box-button (make-instance 'process-box-button :surface-image process-box-icon
+                                                                :border-color +blue+
+                                                                :width 50
+                                                                :height 50))
+    (setf decision-box-button (make-instance 'decision-box-button :surface-image decision-box-icon
+                                                                  :border-color +blue+
+                                                                  :width 50
+                                                                  :height 50))
+    (setf input-output-box-button
+      (make-instance 'input-output-box-button :surface-image input-output-box-icon
+                                              :border-color +blue+
+                                              :width 50
+                                              :height 50))
+    (setf comment-box-button (make-instance 'comment-box-button :surface-image comment-box-icon
+                                                               :border-color +blue+
+                                                               :width 50
+                                                               :height 50))
+    (setf predefined-process-box-button
+      (make-instance 'predefined-process-box-button :surface-image predefined-process-box-icon
+                                                    :border-color +blue+
+                                                    :width 50
+                                                    :height 50))
     (setf *file-toolbar* (make-instance 'toolbar :border-color +blue+
                                                  :width width
                                                  :height 50
@@ -259,7 +291,16 @@
                                                                   load-button
                                                                   box-button
                                                                   arrow-button
-                                                                  connector-button))))
+                                                                  connector-button)))
+    (setf *box-toolbar* (make-instance 'toolbar :border-color +blue+
+                                                :width width
+                                                :height 50
+                                                :widgets (vector terminal-box-button
+                                                                 process-box-button
+                                                                 decision-box-button
+                                                                 input-output-box-button
+                                                                 comment-box-button
+                                                                 predefined-process-box-button))))
   (setf *current-toolbar* *file-toolbar*))
 
 ;; `(unless (< timestamp 1000)) was added to allow some time
