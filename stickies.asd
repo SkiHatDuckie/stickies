@@ -13,4 +13,5 @@
   :serial t
   :components ((:file "package")
                (:file "ui-surface")
+               (:file "toolbar")
                (:file "main")))
