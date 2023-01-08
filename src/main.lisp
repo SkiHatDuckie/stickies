@@ -1,19 +1,6 @@
-;;;; main.lisp. The entrypoint is located here.
-;;;; Run using `sbcl --load main.lisp`
+;;;; The entrypoint is located here
 
-;;; Dependencies
-
-(asdf:load-system :cffi)
-
-(cffi:define-foreign-library libffi  ; Required for loading sketch.
-  (t (:default "libffi-7")))
-
-(cffi:use-foreign-library libffi)
-
-(ql:quickload :sketch)
-
-(defpackage :stickies (:use :cl :sketch))
-(in-package :stickies)
+(in-package :stickies-system)
 
 ;;; UI Surface
 
@@ -217,18 +204,18 @@
      (comment-box-button)
      (predefined-process-box-button)
      (back-button)
-     (save-icon (load-resource "..\\assets\\SaveIcon.png"))
-     (load-icon (load-resource "..\\assets\\LoadIcon.png"))
-     (box-icon (load-resource "..\\assets\\BoxIcon.png"))
-     (arrow-icon (load-resource "..\\assets\\ArrowIcon.png"))
-     (connector-icon (load-resource "..\\assets\\ConnectorIcon.png"))
-     (terminal-box-icon (load-resource "..\\assets\\TerminalBoxIcon.png"))
-     (process-box-icon (load-resource "..\\assets\\ProcessBoxIcon.png"))
-     (decision-box-icon (load-resource "..\\assets\\DecisionBoxIcon.png"))
-     (input-output-box-icon (load-resource "..\\assets\\InputOutputBoxIcon.png"))
-     (comment-box-icon (load-resource "..\\assets\\CommentBoxIcon.png"))
-     (predefined-process-box-icon (load-resource "..\\assets\\PredefinedProcessBoxIcon.png"))
-     (back-icon (load-resource "..\\assets\\BackIcon.png")))
+     (save-icon (load-resource "assets\\SaveIcon.png"))
+     (load-icon (load-resource "assets\\LoadIcon.png"))
+     (box-icon (load-resource "assets\\BoxIcon.png"))
+     (arrow-icon (load-resource "assets\\ArrowIcon.png"))
+     (connector-icon (load-resource "assets\\ConnectorIcon.png"))
+     (terminal-box-icon (load-resource "assets\\TerminalBoxIcon.png"))
+     (process-box-icon (load-resource "assets\\ProcessBoxIcon.png"))
+     (decision-box-icon (load-resource "assets\\DecisionBoxIcon.png"))
+     (input-output-box-icon (load-resource "assets\\InputOutputBoxIcon.png"))
+     (comment-box-icon (load-resource "assets\\CommentBoxIcon.png"))
+     (predefined-process-box-icon (load-resource "assets\\PredefinedProcessBoxIcon.png"))
+     (back-icon (load-resource "assets\\BackIcon.png")))
   (background +white+)
   (draw snapgrid)
   (draw *current-toolbar*))
