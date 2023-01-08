@@ -12,4 +12,5 @@
   :pathname "src"
   :serial t
   :components ((:file "package")
+               (:file "ui-surface")
                (:file "main")))
