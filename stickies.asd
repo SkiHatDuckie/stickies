@@ -14,4 +14,5 @@
   :components ((:file "package")
                (:file "ui-surface")
                (:file "toolbar")
+               (:file "button")
                (:file "main")))
