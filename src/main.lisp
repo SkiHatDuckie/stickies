@@ -2,16 +2,6 @@
 
 (in-package :stickies-system)
 
-;;; Boxes
-
-(defclass box () ())
-(defclass terminal-box (box) ())
-(defclass process-box (box) ())
-(defclass decision-box (box) ())
-(defclass input-output-box (box) ())
-(defclass comment-box (box) ())
-(defclass predefined-process-box (box) ())
-
 ;;; Arrow
 
 (defclass arrow () ())

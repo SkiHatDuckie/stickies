@@ -16,4 +16,5 @@
                (:file "toolbar")
                (:file "button")
                (:file "snapgrid")
+               (:file "box")
                (:file "main")))
