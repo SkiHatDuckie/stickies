@@ -138,6 +138,12 @@
 (defclass comment-box-button (button) ())
 (defclass predefined-process-box-button (button) ())
 
+(defclass back-button (button) ())
+(defmethod on-release :after ((instance back-button))
+  (with-accessors ((hover hover)) instance
+    (when hover
+      (setf *current-toolbar* *file-toolbar*))))
+
 ;;; Snapgrid
 
 (defclass snapgrid ()
@@ -210,6 +216,7 @@
      (input-output-box-button)
      (comment-box-button)
      (predefined-process-box-button)
+     (back-button)
      (save-icon (load-resource "..\\assets\\SaveIcon.png"))
      (load-icon (load-resource "..\\assets\\LoadIcon.png"))
      (box-icon (load-resource "..\\assets\\BoxIcon.png"))
@@ -220,7 +227,8 @@
      (decision-box-icon (load-resource "..\\assets\\DecisionBoxIcon.png"))
      (input-output-box-icon (load-resource "..\\assets\\InputOutputBoxIcon.png"))
      (comment-box-icon (load-resource "..\\assets\\CommentBoxIcon.png"))
-     (predefined-process-box-icon (load-resource "..\\assets\\PredefinedProcessBoxIcon.png")))
+     (predefined-process-box-icon (load-resource "..\\assets\\PredefinedProcessBoxIcon.png"))
+     (back-icon (load-resource "..\\assets\\BackIcon.png")))
   (background +white+)
   (draw snapgrid)
   (draw *current-toolbar*))
@@ -237,7 +245,8 @@
                decision-box-button decision-box-icon
                input-output-box-button input-output-box-icon
                comment-box-button comment-box-icon
-               predefined-process-box-button predefined-process-box-icon) window 
+               predefined-process-box-button predefined-process-box-icon
+               back-button back-icon) window 
     (setf save-button (make-instance 'save-button :surface-image save-icon
                                                   :border-color +blue+
                                                   :width 50
@@ -284,6 +293,10 @@
                                                     :border-color +blue+
                                                     :width 50
                                                     :height 50))
+    (setf back-button (make-instance 'back-button :surface-image back-icon
+                                                  :border-color +blue+
+                                                  :width 50
+                                                  :height 50))
     (setf *file-toolbar* (make-instance 'toolbar :border-color +blue+
                                                  :width width
                                                  :height 50
@@ -295,7 +308,8 @@
     (setf *box-toolbar* (make-instance 'toolbar :border-color +blue+
                                                 :width width
                                                 :height 50
-                                                :widgets (vector terminal-box-button
+                                                :widgets (vector back-button
+                                                                 terminal-box-button
                                                                  process-box-button
                                                                  decision-box-button
                                                                  input-output-box-button
