@@ -18,4 +18,5 @@
                (:file "snapgrid")
                (:file "box")
                (:file "arrow")
+               (:file "connector")
                (:file "main")))

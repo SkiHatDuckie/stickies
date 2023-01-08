@@ -2,14 +2,6 @@
 
 (in-package :stickies-system)
 
-;;; Connector
-
-(defclass connector () ())
-(defclass on-page-connector (connector) ())
-(defclass off-page-connector (connector) ())
-
-;;; Stickies App
-
 (defsketch app
     ((title "Stickies") (width 600) (height 400)
      (snapgrid (make-instance 'snapgrid :y-offset 50))
