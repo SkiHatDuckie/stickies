@@ -15,4 +15,5 @@
                (:file "ui-surface")
                (:file "toolbar")
                (:file "button")
+               (:file "snapgrid")
                (:file "main")))
