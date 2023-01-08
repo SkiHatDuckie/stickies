@@ -2,10 +2,6 @@
 
 (in-package :stickies-system)
 
-;;; Arrow
-
-(defclass arrow () ())
-
 ;;; Connector
 
 (defclass connector () ())

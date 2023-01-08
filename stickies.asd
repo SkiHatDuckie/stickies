@@ -17,4 +17,5 @@
                (:file "button")
                (:file "snapgrid")
                (:file "box")
+               (:file "arrow")
                (:file "main")))
