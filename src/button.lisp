@@ -49,6 +49,12 @@
 
 (defclass process-box-button (button) ())
 
+(defmethod on-release :after ((instance process-box-button))
+  (with-accessors ((hover hover)) instance
+    (when hover
+      (add-box *snapgrid* (make-instance 'process-box :surface-color +green+
+                                                      :border-color +yellow+)))))
+
 (defclass decision-box-button (button) ())
 
 (defclass input-output-box-button (button) ())

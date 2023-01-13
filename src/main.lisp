@@ -4,7 +4,6 @@
 
 (defsketch app
     ((title "Stickies") (width 600) (height 400)
-     (snapgrid (make-instance 'snapgrid :y-offset 50))
      (save-button)
      (load-button)
      (box-button)
@@ -30,7 +29,7 @@
      (predefined-process-box-icon (load-resource "assets\\PredefinedProcessBoxIcon.png"))
      (back-icon (load-resource "assets\\BackIcon.png")))
   (background +white+)
-  (draw snapgrid)
+  (draw *snapgrid*)
   (draw *current-toolbar*))
 
 (defmethod setup ((window app) &key &allow-other-keys)
